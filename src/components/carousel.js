@@ -1,57 +1,56 @@
-import { Children, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "../styles/carousel.css";
 
-const Carousel = ({ children }) => {
+  const Carousel = ({ children }) => {
   const containerRef = useRef();
-
-  const [current, setCurrent] = useState(1);
+  // 'current' is like an index to update the slide in carousel 
+  const [current, setCurrent] = useState(0);
+  // 'translateX' is to update the amount it should move
   const [translateX, setTranslateX] = useState(0);
 
   // previous and next buttons
   const btnHandler = useCallback((direction)=>{
     containerRef.current.style.transitionDuration = "400ms";
+    //logic for previous button
     if(direction === 'prev') {
-        if(current <= 1){
-            setTranslateX(0);
-            setCurrent(children.length)
+        if(current <= 0){
+            setTranslateX(containerRef.current.clientWidth * (children.length - 1));
+            setCurrent(children.length - 1)
         } else {
-            setTranslateX(containerRef.current.clientWidth * (current -1));
+            setTranslateX(containerRef.current.clientWidth * (current - 1));
             setCurrent(current - 1);
-        }
+        }// logic for next button
     } else if( direction === 'next'){
-        if(current >= children.length){
-            setTranslateX(containerRef.current.clientWidth * (children.length + 1));
-            setCurrent(1)
+        if(current === children.length-1){
+            setTranslateX(0)
+            setCurrent(0)
         } else {
             setTranslateX(containerRef.current.clientWidth * (current +1));
             setCurrent(current + 1);
         }
-
     }
   },[current,children])
 
-// auto scroll
+// auto scroll with 5s interval
 useEffect(()=> { setInterval(()=>{ btnHandler("next") },5000) },[btnHandler]);
 
-  const slides = useMemo(() => {
+
+//to display slides in carouse
+  const slides = () => {
     if (children.length > 1) {
-      let items = Children.map(children, (child, index) => (
-        <li key={index} className="slide">
-          {child}
-        </li>
-      ));
+      let items = children.map((child, index) => {
+          return (<li key={index} className="slide">
+            {child}
+          </li>)
+      }
+      );
+      console.log(items)
       return [
-        <li key={children.length + 1} className="slide">
-          {children[children.length - 1]}
-        </li>,
-        ...items,
+        ...items
       ];
     }
-  }, [children]);
+  }
 
-  useLayoutEffect(() => {
-    setTranslateX(containerRef.current.clientWidth * current)
-  });
 
   return (
     <section className="section">
@@ -60,7 +59,7 @@ useEffect(()=> { setInterval(()=>{ btnHandler("next") },5000) },[btnHandler]);
         className="container"
         style={{ transform: `translate3d(${-translateX}px, 0, 0)` }}
       >
-        {slides}
+        {slides()}
       </ul>
       <button className="btn left" onClick={() => btnHandler('prev')} >{"<"}</button>
         <button className="btn right" onClick={() => btnHandler('next')} >{">"}</button>
