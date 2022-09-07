@@ -31,7 +31,7 @@ const Carousel = ({ children }) => {
   },[current,children])
 
 // auto scroll
-useEffect(()=> { setInterval(()=>{ btnHandler("next") },2000) },[btnHandler]);
+useEffect(()=> { setInterval(()=>{ btnHandler("next") },5000) },[btnHandler]);
 
   const slides = useMemo(() => {
     if (children.length > 1) {
